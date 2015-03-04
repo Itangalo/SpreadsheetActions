@@ -1,7 +1,29 @@
+/**
+ * Spreadsheet Actions (SA) allows running actions in Google spreadsheets, either on
+ * selected rows ("bulk actions") or on the spreadsheet as a whole ("global actions").
+ * This can, for example, be used to send customized emails, copy and share files,
+ * manage contacts and more.
+ *
+ * This is the main file of SA, containing the backbone of the script plus a few options
+ * that affect all SA plugins. To change settings for each plugin, select the relevant
+ * plugin file in the list.
+ *
+ * Spreadsheet Actions is an open source project. You can find more information at
+ * https://github.com/Itangalo/SpreadsheetActions
+ */
+
+/**
+ * These are global options, affecting all SA plugins.
+ */
 var globalOptions = {
+  // The workbook to read content from.
   workbook : SpreadsheetApp.getActiveSpreadsheet(),
+  // The sheet in the workbook to read content from.
   mainSheetName : 'Sheet1',
+  // The first row that should be processed by bulk actions.
   startRow : 3,
+  // The column determining which rows should be processed by bulk actions or not.
+  // (If the cell contains a one ('1') the row will be processed, otherwise not.)
   selectColumn : 1
 };
 
@@ -104,6 +126,9 @@ var SA = {
   fetch : {},
 };
 
+/**
+ * Callback building and displaying menu settings for SA.
+ */
 function SAsetup() {
   var checked;
   var output = '<h3>Enable/disable bulk actions</h3>';
@@ -137,7 +162,7 @@ function SAsetup() {
      .setTitle('Spreadsheet Actions setup');
   SpreadsheetApp.getUi().showSidebar(htmlOutput);
 
-  globalOptions.workbook.setFrozenRows(globalOptions.startRow - 1);
+  globalOptions.sheet.setFrozenRows(globalOptions.startRow - 1);
   globalOptions.sheet = globalOptions.workbook.getSheetByName(globalOptions.mainSheetName);
   SA.plugins.basics.initialize();
   if (globalOptions.startRow > 2) {
@@ -147,6 +172,9 @@ function SAsetup() {
   }
 }
 
+/**
+ * Turns on/off menu items. Called from SAsetup.
+ */
 function toggleEnabled(e) {
   if (SA.callbackIsEnabled(e)) {
     SA.disableCallback(e);
@@ -157,6 +185,9 @@ function toggleEnabled(e) {
   SA.buildMenu();
 }
 
+/**
+ * Callback building and displaying SA help.
+ */
 function SAhelp() {
   var htmlOutput = HtmlService.createHtmlOutput()
      .setSandboxMode(HtmlService.SandboxMode.NATIVE)
@@ -177,6 +208,9 @@ function SAhelp() {
   SpreadsheetApp.getUi().showSidebar(htmlOutput);
 }
 
+/**
+ * Pseudo-class for Spreadsheet Action plugins. See pluginExample.gs for example implementation.
+ */
 function SAplugin(id) {
   this.id = id;
   SA.plugins[id] = this;
@@ -211,6 +245,9 @@ function SAplugin(id) {
   return this;
 }
 
+/**
+ * Verifies that the plugin has all dependencies met.
+ */
 SAplugin.prototype.verifyDependencies = function() {
   var gotVersion, gotSubVersion;
   for (var p in this.dependencies) {
@@ -219,10 +256,10 @@ SAplugin.prototype.verifyDependencies = function() {
       gotSubVersion = SA.subVersion;
     }
     else {
-      SA.plugins[p].initialize();
       if (SA.plugins[p] == undefined) {
         throw this.title + ': Plugin ' + p + ' is required, but is missing.';
       }
+      SA.plugins[p].initialize();
       gotVersion = SA.plugins[p].version;
       gotSubVersion = SA.plugins[p].subVersion;
     }
