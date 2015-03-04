@@ -1,4 +1,24 @@
+/**
+ * @file: This plugin provides some common functionality used by many other
+ * plugins, for example specifying name and Google ID column and a method for
+ * doing replacements in texts.
+ */
+
 var plugin = new SAplugin('basics');
+
+// The column used for name (if any).
+plugin.options.nameColumn = 2;
+// The column used for Google ID.
+plugin.options.googleIdColumn = 3;
+
+// Version and dependencies.
+plugin.version = 1;
+plugin.subVersion = 1;
+plugin.dependencies = {
+  SA : {
+    version : 1
+  }
+};
 
 // A fetcher, fetching a cell from given row and column in the main sheet.
 plugin.fetchers.cell = function(row, column) {
