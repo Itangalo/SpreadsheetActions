@@ -13,13 +13,13 @@ var SA = {
   // Version declarations.
   version : 1,
   subVersion : 1,
-  
+
   // Method for executing bulk actions on selected rows.
   executeBulkAction : function(plugin, callback, mode) {
     this.plugins[plugin].initialize();
     globalOptions.sheet = globalOptions.workbook.getSheetByName(globalOptions.mainSheetName);
     globalOptions.numRows = globalOptions.sheet.getLastRow() - globalOptions.startRow + 1;
-  
+
     var items = globalOptions.sheet.getRange(globalOptions.startRow, globalOptions.selectColumn, globalOptions.numRows).getValues();
     for (var r in items) {
       for (var c in items[r]) {
@@ -31,7 +31,7 @@ var SA = {
       }
     }
   },
-  
+
   // Method for executing actions on the sheet as a whole.
   executeGlobalAction : function(plugin, callback) {
     this.plugins[plugin].initialize();
@@ -39,11 +39,11 @@ var SA = {
     globalOptions.numRows = globalOptions.sheet.getLastRow() - globalOptions.startRow + 1;
     this.plugins[plugin][callback]();
   },
-  
+
   // Adds all enabled actions to the menu.
   buildMenu : function() {
     var ui = SpreadsheetApp.getUi();
-    
+
     // Create the dynamic bulk actions and global actions sub menus.
     var bulkActions = ui.createMenu('Bulk actions');
     var empty = true;
@@ -58,7 +58,7 @@ var SA = {
     if (empty) {
       bulkActions.addItem('Empty (run setup to add bulk actions)', 'SAsetup');
     }
-    
+
     var globalActions = ui.createMenu('Actions');
     var empty = true;
     for (var i in SA.plugins) {
@@ -72,7 +72,7 @@ var SA = {
     if (empty) {
       globalActions.addItem('Empty (run setup to add actions)', 'SAsetup');
     }
-    
+
     // Create menu and add sub menus plus static menu entries.
     ui.createMenu('Spreadsheet actions')
     .addSubMenu(bulkActions)
@@ -130,13 +130,13 @@ function SAsetup() {
       output += '<input type="checkbox" ' + checked + 'onclick="google.script.run.toggleEnabled(\'' + j + '\')" >' + SA.plugins[i].globalActions[j].title + '<br />';
     }
   }
-  
+
   var htmlOutput = HtmlService
      .createHtmlOutput(output)
      .setSandboxMode(HtmlService.SandboxMode.NATIVE)
      .setTitle('Spreadsheet Actions setup');
   SpreadsheetApp.getUi().showSidebar(htmlOutput);
-  
+
   globalOptions.workbook.setFrozenRows(globalOptions.startRow - 1);
   globalOptions.sheet = globalOptions.workbook.getSheetByName(globalOptions.mainSheetName);
   SA.plugins.basics.initialize();
