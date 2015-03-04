@@ -16,7 +16,6 @@ function testsExecute() {
   SA.executeGlobalAction('tests', 'execute');
 }
 
-// The function actually writing cellt content.
 plugin.execute = function() {
   var plugins = Object.keys(SA.plugins);
   if (this.options.pluginId) {
