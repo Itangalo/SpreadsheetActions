@@ -19,7 +19,7 @@ var globalOptions = {
   // The workbook to read content from.
   workbook : SpreadsheetApp.getActiveSpreadsheet(),
   // The sheet in the workbook to read content from.
-  mainSheetName : 'Sheet1',
+  mainSheetName : 'Main sheet',
   // The first row that should be processed by bulk actions.
   startRow : 3,
   // The column determining which rows should be processed by bulk actions or not.
