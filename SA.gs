@@ -203,7 +203,10 @@ function SAhelp() {
   htmlOutput.append('<li>Go back to the spreadsheet and run the action from the "Student Actions" menu.</li></ul>');
   htmlOutput.append('<p>Once you have changed the options, you don\'t have to do it again until you want to use other settings.</p>');
   htmlOutput.append('<p>You can turn on/off menu items by visiting the settings.</p>');
-  htmlOutput.append('<p>You can download and install new Student Actions plugins, to allow more actions.</p>');
+  htmlOutput.append('<p>You can download and install new Student Actions plugins, to allow more actions. Here are some useful links.</p>');
+  htmlOutput.append('<ul><li><a href="https://github.com/Itangalo/SpreadsheetActions">Plugins and source code on GitHub</a></li>');
+  htmlOutput.append('<li><a href="http://tinyurl.com/SpreadsheetActionsVideos">Videos demonstrating Spreadsheet Actions alpha-1</a></li>');
+  htmlOutput.append('<li><a href="http://tinyurl.com/SpreadsheetActions">tinyurl.com/SpreadsheetActions</a> gives you a copy of the latest stable version</li></ul>');
 
   SpreadsheetApp.getUi().showSidebar(htmlOutput);
 }
