@@ -3,6 +3,7 @@
  */
 
 var plugin = new SAplugin('colorStudentWorkbook');
+plugin.subVersion = 2;
 
 /**
  * This plugin uses options from other plugins:
@@ -13,10 +14,10 @@ var plugin = new SAplugin('colorStudentWorkbook');
 plugin.options.range = false;
 // The color to use, in hex code or accepted CSS codes. If false, the colors of the selected range will be used.
 plugin.options.color = false;
-// Preset colors for special actions.
-plugin.options.colorOk = 'lawngreen';
-plugin.options.colorNotOk = 'red';
-plugin.options.colorHalfway = 'yellow';
+// Preset colors for special actions. Must be in hex code.
+plugin.options.colorOk = '#00ff00';
+plugin.options.colorNotOk = '#ff0000';
+plugin.options.colorHalfway = '#ffff00';
 
 plugin.title = 'Color student sheets';
 plugin.dependencies = {
