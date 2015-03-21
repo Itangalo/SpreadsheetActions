@@ -162,8 +162,8 @@ function SAsetup() {
      .setTitle('Spreadsheet Actions setup');
   SpreadsheetApp.getUi().showSidebar(htmlOutput);
 
-  globalOptions.sheet.setFrozenRows(globalOptions.startRow - 1);
   globalOptions.sheet = globalOptions.workbook.getSheetByName(globalOptions.mainSheetName);
+  globalOptions.sheet.setFrozenRows(globalOptions.startRow - 1);
   SA.plugins.basics.initialize();
   if (globalOptions.startRow > 2) {
     for (var i = 1; i <= globalOptions.sheet.getLastColumn(); i++) {
