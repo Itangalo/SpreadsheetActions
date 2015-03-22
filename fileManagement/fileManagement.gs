@@ -3,40 +3,40 @@
  */
 
 var plugin = new SAplugin('fileManagement');
+plugin.version = 2;
 
 /**
- * Column containing any source file (or folder), used for copying, moving, etc.
- * If set to false, the fallback file ID will be used.
+ * Options for moving files/folders to folders:
+ * If column options are used, URL or ID for file/folder will be read from that column.
+ * If set to false, the fallback ID will be used for all processed rows.
  */
-plugin.options.sourceFileIdColumn = 9;
-plugin.options.sourceFileIdFallback = '1ZOrHHmdfkM3jQX0mjTsNh7Ln9o8icSLk4pFYvecrPFg';
-plugin.options.sourceFolderIdColumn = 6;
-plugin.options.sourceFolderIdFallback = '0BzgECFpHWbvRfmgySUExQTAzbTNSamFpVHdlak84QnRRd0U5VHZIWS1BbjBiS3dyZWdBR00';
+plugin.options.sourceFileUrlColumn = 5;
+plugin.options.sourceFileUrlFallback = 'https://docs.google.com/document/d/1ZOrHHmdfkM3jQX0mjTsNh7Ln9o8icSLk4pFYvecrPFg/edit';
+plugin.options.sourceFolderUrlColumn = 6;
+plugin.options.sourceFolderUrlFallback = 'https://docs.google.com/folderview?id=0BzgECFpHWbvRfmgySUExQTAzbTNSamFpVHdlak84QnRRd0U5VHZIWS1BbjBiS3dyZWdBR00';
+plugin.options.targetFolderUrlColumn = false;
+plugin.options.targetFolderUrlFallback = 'https://docs.google.com/folderview?id=0BzgECFpHWbvRfmgySUExQTAzbTNSamFpVHdlak84QnRRd0U5VHZIWS1BbjBiS3dyZWdBR00';
+// When adding files/folders to a folder: Set to true to also remove it from all folders it was placed in before the move.
+plugin.options.removeFromOldFolders = true;
+// When adding files/folders to a folder: Set to true to also remove it from the root folder.
+plugin.options.removeFromRoot = true;
 
 /**
- * If new files are created, or files are renamed, a pattern for file names are specified here.
+ * If new files/folders are created or renamed, a pattern for file names are specified here.
  * You can use replacement patterns like '%2%' to insert the value in column 2.
  */
-plugin.options.fileNamePattern = 'Copy for %2%';
+plugin.options.fileNamePattern = 'Workbook for %2%';
 
 /**
- * If new files are created, or renamed, these column can be used to write ID, name and link for the file.
+ * If new files/folders are created, or renamed, these column can be used to write ID, name and URL.
  * Set options to false to avoid printing out the data.
  */
-plugin.options.newFileIdColumn = 9;
-plugin.options.newFileNameColumn = 10;
-plugin.options.newFileLinkColumn = 11;
-
-/**
- * If any files/folders should be moved, use this setting to identify to which folder.
- * If set to false, the fallback file ID will be used for all rows.
- */
-plugin.options.targetFolderIdColumn = false;
-plugin.options.targetFolderIdFallback = '0BzgECFpHWbvRfmgySUExQTAzbTNSamFpVHdlak84QnRRd0U5VHZIWS1BbjBiS3dyZWdBR00';
-// When adding files to a folder: Set to true to remove the file from the root folder.
-plugin.options.removeFileFromRoot = true;
-// When adding files to a folder: Set to true to remove the file from all folders it was placed in before the move.
-plugin.options.removeFileFromOldFolders = true;
+plugin.options.newFileIdColumn = false;
+plugin.options.newFileNameColumn = 7;
+plugin.options.newFileLinkColumn = false;
+plugin.options.newFolderIdColumn = false;
+plugin.options.newFolderNameColumn = 12;
+plugin.options.newFolderLinkColumn = 13;
 
 plugin.dependencies = {
   SA : {
@@ -83,6 +83,7 @@ function fileManagementCopyFile() {
 }
 function fileManagementRenameFile() {
   SA.plugins.fileManagement.options.newFileIdColumn = false;
+  SA.plugins.fileManagement.options.newFileLinkColumn = false;
   SA.executeBulkAction('fileManagement', 'renameFile');
   SA.executeBulkAction('fileManagement', 'printFileData');
 }
@@ -93,8 +94,8 @@ function fileManagementCreateFolder() {
 // Moves a file to a folder.
 plugin.moveFile = function(row) {
   // Load source file and target folder, possibly from fallback.
-  var file = SA.fetch.file(row, 'sourceFileId');
-  var folder = SA.fetch.folder(row, 'targetFolderId');
+  var file = SA.fetch.file(row, 'sourceFileUrl');
+  var folder = SA.fetch.folder(row, 'targetFolderUrl');
 
   if (this.options.removeFileFromRoot) {
     DriveApp.getRootFolder().removeFile(file);
@@ -111,8 +112,8 @@ plugin.moveFile = function(row) {
 // Moves a folder to a folder.
 plugin.moveFolder = function(row) {
   // Load source file and target folder, possibly from fallback.
-  var sourceFolder = SA.fetch.folder(row, 'sourceFolderId');
-  var targetFolder = SA.fetch.folder(row, 'targetFolderId');
+  var sourceFolder = SA.fetch.folder(row, 'sourceFolderUrl');
+  var targetFolder = SA.fetch.folder(row, 'targetFolderUrl');
 
   if (this.options.removeFileFromRoot) {
     DriveApp.getRootFolder().removeFolder(sourceFolder);
@@ -128,14 +129,14 @@ plugin.moveFolder = function(row) {
 
 // Copies a file.
 plugin.copyFile = function(row) {
-  var file = SA.fetch.file(row, 'sourceFileId');
+  var file = SA.fetch.file(row, 'sourceFileUrl');
   var copy = file.makeCopy(SA.fetch.replacedText(row, this.options.fileNamePattern));
   this.printFileData(row, copy);
 }
 
 // Renames a file.
 plugin.renameFile = function(row) {
-  var file = SA.fetch.file(row, 'sourceFileId');
+  var file = SA.fetch.file(row, 'sourceFileUrl');
   file.setName(SA.fetch.replacedText(row, this.options.fileNamePattern));
 }
 
@@ -143,8 +144,9 @@ plugin.renameFile = function(row) {
 // column or fallback will be used.
 plugin.printFileData = function(row, file) {
   if (!file) {
-    file = SA.fetch.file(row, 'sourceFileId');
+    file = SA.fetch.file(row, 'sourceFileUrl');
   }
+  Logger.log(file.getName());
   if (this.options.newFileIdColumn) {
     SA.fetch.cell(row, this.options.newFileIdColumn).setValue(file.getId());
   }
@@ -156,24 +158,34 @@ plugin.printFileData = function(row, file) {
   }
 }
 
+// Prints folder data to the main sheet.
+plugin.printFolderData = function(row, folder) {
+  if (this.options.newFolderIdColumn) {
+    SA.fetch.cell(row, this.options.newFolderIdColumn).setValue(folder.getId());
+  }
+  if (this.options.newFolderNameColumn) {
+    SA.fetch.cell(row, this.options.newFolderNameColumn).setValue(folder.getName());
+  }
+  if (this.options.newFolderLinkColumn) {
+    SA.fetch.cell(row, this.options.newFolderLinkColumn).setValue(folder.getUrl());
+  }
+}
+
 // Creates a folder.
 plugin.createFolder = function(row) {
   var folder = DriveApp.createFolder(SA.fetch.replacedText(row, this.options.fileNamePattern));
-  this.printFileData(row, folder);
+  this.printFolderData(row, folder);
 }
 
 // Loads a Google Drive file with column from the specified option, including fallbacks.
 plugin.fetchers.file = function(row, option) {
   var file;
   if (SA.plugins.fileManagement.options[option + 'Column']) {
-    file = DriveApp.getFileById(SA.fetch.cell(row, SA.plugins.fileManagement.options[option + 'Column']).getValue());
+    file = SA.fetch.fileByUrl(SA.fetch.cell(row, SA.plugins.fileManagement.options[option + 'Column']).getValue());
   }
   else {
-    file = DriveApp.getFileById(SA.plugins.fileManagement.options[option + 'Fallback']);
+    file = SA.fetch.fileByUrl(SA.plugins.fileManagement.options[option + 'Fallback']);
   }
-//  if (file.getMimeType() == 'application/vnd.google-apps.folder') {
-//    file = DriveApp.getFolderById(file.getId());
-//  }
   return file;
 }
 
@@ -181,10 +193,38 @@ plugin.fetchers.file = function(row, option) {
 plugin.fetchers.folder = function(row, option) {
   var folder;
   if (SA.plugins.fileManagement.options[option + 'Column']) {
-    folder = DriveApp.getFolderById(SA.fetch.cell(row, SA.plugins.fileManagement.options[option + 'Column']).getValue());
+    folder = SA.fetch.folderByUrl(SA.fetch.cell(row, SA.plugins.fileManagement.options[option + 'Column']).getValue());
   }
   else {
-    folder = DriveApp.getFolderById(SA.plugins.fileManagement.options[option + 'Fallback']);
+    folder = SA.fetch.folderByUrl(SA.plugins.fileManagement.options[option + 'Fallback']);
   }
   return folder;
+}
+
+// Fetches a Google Drive file based on a url or a file ID.
+plugin.fetchers.fileByUrl = function(url) {
+  var file;
+  var parts = url.split('/').reverse();
+  for (var i in parts) {
+    try {
+      file = DriveApp.getFileById(parts[i]);
+      return file;
+    }
+    catch(e) {}
+  }
+  throw('The url ' + url + ' does not lead to a valid and accessible Google Drive file.');
+}
+
+// Fetches a Google Drive folder based on a url or a folder ID.
+plugin.fetchers.folderByUrl = function(url) {
+  var folder;
+  var parts = url.split('/').reverse();
+  for (var i in parts) {
+    try {
+      folder = DriveApp.getFolderById(parts[i]);
+      return folder;
+    }
+    catch(e) {}
+  }
+  throw('The url ' + url + ' does not lead to a valid and accessible Google Drive folder.');
 }
