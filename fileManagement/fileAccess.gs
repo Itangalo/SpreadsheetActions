@@ -7,11 +7,12 @@
  */
 
 var plugin = new SAplugin('fileAccess');
+plugin.version = 2;
 
 /**
  * This plugin uses options from other plugins:
  *   basics: Google ID
- *   fileManagement: Source file ID, source folder ID
+ *   fileManagement: Source file URL, source folder URL
  */
 
 /**
@@ -23,18 +24,18 @@ plugin.options.grantEditAccess = false;
 plugin.options.grantCommentAccess = false;
 /**
  * A string with account email addresses that should be granted edit access to all processed
- * files. Separated by commas.
+ * files. Separated by commas. (Not yet used.)
  */
 plugin.options.editorEmails = '';
 // Folder ID for any main folder. Used by 'create class folder structure'.
-plugin.options.mainFolderIdFallback = '0BzgECFpHWbvRfmgySUExQTAzbTNSamFpVHdlak84QnRRd0U5VHZIWS1BbjBiS3dyZWdBR00';
+plugin.options.mainFolderUrlFallback = 'https://docs.google.com/folderview?id=0BzgECFpHWbvRfmgySUExQTAzbTNSamFpVHdlak84QnRRd0U5VHZIWS1BbjBiS3dyZWdBR00';
 // Name patterns for folders in class folder structure.
 plugin.options.teacherOnlyFolderNamePattern = '%2%';
-plugin.options.teacherOnlyFolderIdColumn = '6';
+plugin.options.teacherOnlyFolderUrlColumn = '6';
 plugin.options.studentViewFolderNamePattern = 'Matte 1b: %2% (endast visa)';
-plugin.options.studentViewFolderIdColumn = '7';
+plugin.options.studentViewFolderUrlColumn = '7';
 plugin.options.studentEditFolderNamePattern = 'Matte 1b: %2% (redigerbar)';
-plugin.options.studentEditFolderIdColumn = '8';
+plugin.options.studentEditFolderUrlColumn = '8';
 
 
 plugin.dependencies = {
@@ -42,7 +43,7 @@ plugin.dependencies = {
     version : 1
   },
   fileManagement : {
-    version : 1
+    version : 2
   }
 };
 
@@ -85,22 +86,22 @@ function fileAccessFolderReset() {
 function fileAccessClassFolders() {
   // Create folders that only teacher can view.
   SA.plugins.fileManagement.options.fileNamePattern = SA.plugins.fileAccess.options.teacherOnlyFolderNamePattern;
-  SA.plugins.fileManagement.options.newFileIdColumn = SA.plugins.fileAccess.options.teacherOnlyFolderIdColumn;
+  SA.plugins.fileManagement.options.newFileUrlColumn = SA.plugins.fileAccess.options.teacherOnlyFolderUrlColumn;
   SA.executeBulkAction('fileManagement', 'createFolder');
   // Move the folder to the main folder.
-  SA.plugins.fileManagement.options.sourceFolderIdColumn = SA.plugins.fileAccess.options.teacherOnlyFolderIdColumn;
-  SA.plugins.fileManagement.options.targetFolderIdColumn = false;
-  SA.plugins.fileManagement.options.targetFolderIdFallback = SA.plugins.fileAccess.options.mainFolderIdFallback;
+  SA.plugins.fileManagement.options.sourceFolderUrlColumn = SA.plugins.fileAccess.options.teacherOnlyFolderUrlColumn;
+  SA.plugins.fileManagement.options.targetFolderUrlColumn = false;
+  SA.plugins.fileManagement.options.targetFolderUrlFallback = SA.plugins.fileAccess.options.mainFolderUrlFallback;
   SA.executeBulkAction('fileManagement', 'moveFolder');
 
   // Create folders that students may view.
   SA.plugins.fileManagement.options.fileNamePattern = SA.plugins.fileAccess.options.studentViewFolderNamePattern;
-  SA.plugins.fileManagement.options.newFileIdColumn = SA.plugins.fileAccess.options.studentViewFolderIdColumn;
-  SA.plugins.fileManagement.options.targetFolderIdColumn = SA.plugins.fileAccess.options.teacherOnlyFolderIdColumn;
+  SA.plugins.fileManagement.options.newFileUrlColumn = SA.plugins.fileAccess.options.studentViewFolderUrlColumn;
+  SA.plugins.fileManagement.options.targetFolderUrlColumn = SA.plugins.fileAccess.options.teacherOnlyFolderUrlColumn;
   SA.executeBulkAction('fileManagement', 'createFolder');
   // Move the folder to the teacher-only folder.
-  SA.plugins.fileManagement.options.sourceFolderIdColumn = SA.plugins.fileAccess.options.studentViewFolderIdColumn;
-  SA.plugins.fileManagement.options.targetFolderIdColumn = SA.plugins.fileAccess.options.teacherOnlyFolderIdColumn;
+  SA.plugins.fileManagement.options.sourceFolderUrlColumn = SA.plugins.fileAccess.options.studentViewFolderUrlColumn;
+  SA.plugins.fileManagement.options.targetFolderUrlColumn = SA.plugins.fileAccess.options.teacherOnlyFolderUrlColumn;
   SA.executeBulkAction('fileManagement', 'moveFolder');
   // Grant view access to the student.
   SA.plugins.fileAccess.options.grantEditAccess = false;
@@ -109,11 +110,11 @@ function fileAccessClassFolders() {
 
   // Create folders that students may edit.
   SA.plugins.fileManagement.options.fileNamePattern = SA.plugins.fileAccess.options.studentEditFolderNamePattern;
-  SA.plugins.fileManagement.options.newFileIdColumn = SA.plugins.fileAccess.options.studentEditFolderIdColumn;
+  SA.plugins.fileManagement.options.newFileUrlColumn = SA.plugins.fileAccess.options.studentEditFolderUrlColumn;
   SA.executeBulkAction('fileManagement', 'createFolder');
   // Move the folder to the viewable folder.
-  SA.plugins.fileManagement.options.sourceFolderIdColumn = SA.plugins.fileAccess.options.studentEditFolderIdColumn;
-  SA.plugins.fileManagement.options.targetFolderIdColumn = SA.plugins.fileAccess.options.studentViewFolderIdColumn;
+  SA.plugins.fileManagement.options.sourceFolderUrlColumn = SA.plugins.fileAccess.options.studentEditFolderUrlColumn;
+  SA.plugins.fileManagement.options.targetFolderUrlColumn = SA.plugins.fileAccess.options.studentViewFolderUrlColumn;
   SA.executeBulkAction('fileManagement', 'moveFolder');
   // Grant view and edit access to the student.
   SA.plugins.fileAccess.options.grantEditAccess = true;
@@ -121,7 +122,7 @@ function fileAccessClassFolders() {
 }
 
 plugin.fileGrant = function(row) {
-  var file = SA.fetch.file(row, 'sourceFileId');
+  var file = SA.fetch.file(row, 'sourceFileUrl');
   var googleId = SA.fetch.cell(row, SA.plugins.basics.options.googleIdColumn).getValue();
   if (this.options.grantViewAccess) {
     file.addViewer(googleId);
@@ -134,7 +135,7 @@ plugin.fileGrant = function(row) {
   }
 }
 plugin.folderGrant = function(row) {
-  var folder = SA.fetch.folder(row, 'sourceFolderId');
+  var folder = SA.fetch.folder(row, 'sourceFolderUrl');
   var googleId = SA.fetch.cell(row, SA.plugins.basics.options.googleIdColumn).getValue();
   if (this.options.grantViewAccess) {
     folder.addViewer(googleId);
@@ -155,7 +156,7 @@ plugin.fileReset = function(row) {
   }
 }
 plugin.folderReset = function(row) {
-  var folder = SA.fetch.folder(row, 'sourceFolderId');
+  var folder = SA.fetch.folder(row, 'sourceFolderUrl');
   var users = folder.getViewers();
   for (var i in users) {
     folder.revokePermissions(users[i]);
