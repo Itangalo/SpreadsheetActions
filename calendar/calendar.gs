@@ -5,13 +5,10 @@
 
 var plugin = new SAplugin('calendar');
 
-/**
- * This plugin uses options from other plugins:
- *   basics: google ID column
- */
-
 // The name of the calendar to work with. (If there are more than one with this name, the first will be used.)
 plugin.options.calendarName = 'Test calendar';
+// This option allows creating a new calendar with the given name, if it does not already exist.
+plugin.options.createIfNeeded = true;
 
 // Columns with start time, end time and names of events.
 plugin.options.startTime = 6;
@@ -84,6 +81,9 @@ plugin.createOrUpdateEvents = function(row) {
     var event = calendar.createEvent(SA.fetch.cell(row, this.options.eventName).getValue(), SA.fetch.cell(row, this.options.startTime).getValue(), SA.fetch.cell(row, this.options.endTime).getValue());
     SA.fetch.cell(row, this.options.eventId).setValue(event.getId());
   }
+  if (this.options.eventName) {
+    event.setTitle(SA.fetch.cell(row, this.options.eventName).getValue());
+  }
   if (this.options.eventDescription) {
     event.setDescription(SA.fetch.cell(row, this.options.eventDescription).getValue());
   }
@@ -121,18 +121,30 @@ plugin.removeReminders = function(row) {
 
 // Fetches or creates an owned calendar with the given name. The calendar is cached locally,
 // so it doesn't have to be loaded for each processed row.
-plugin.fetchers.calendar = function(name) {
+plugin.fetchers.calendar = function(name, readOnly) {
+  // Check for cached values first.
   if (this.calendar[name]) {
     return this.calendar[name];
   }
 
-  var c = CalendarApp.getOwnedCalendarsByName(name);
+  if (readOnly) {
+    var c = CalendarApp.getCalendarsByName(name);
+  }
+  else {
+    var c = CalendarApp.getOwnedCalendarsByName(name);
+  }
+
   if (c.length == 0) {
-    c = CalendarApp.createCalendar(name).setTimeZone(Session.getScriptTimeZone());
+    if (SA.plugins.calendar.options.createIfNeeded && readOnly) {
+      c = CalendarApp.createCalendar(name).setTimeZone(Session.getScriptTimeZone());
+    }
+    throw('Calendar ' + name + ' does not exist.');
   }
   else {
     c = c[0];
   }
+
+  // Cache the result before returning.
   this.calendar[name] = c;
   return c;
 }
