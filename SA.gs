@@ -34,7 +34,7 @@ function onOpen() {
 var SA = {
   // Version declarations.
   version : 1,
-  subVersion : 1,
+  subVersion : 2,
 
   // Method for executing bulk actions on selected rows.
   executeBulkAction : function(plugin, callback, mode) {
@@ -101,6 +101,7 @@ var SA = {
     .addSubMenu(globalActions)
     .addSeparator()
     .addItem('Setup', 'SAsetup')
+    .addItem('Rescan menu items', 'onOpen')
     .addItem('Help', 'SAhelp')
     .addToUi();
   },
