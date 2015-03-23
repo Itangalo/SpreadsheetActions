@@ -8,6 +8,7 @@
 
 var plugin = new SAplugin('fileAccess');
 plugin.version = 2;
+plugin.subVersion = 2;
 
 /**
  * This plugin uses options from other plugins:
@@ -22,6 +23,8 @@ plugin.version = 2;
 plugin.options.grantViewAccess = true;
 plugin.options.grantEditAccess = false;
 plugin.options.grantCommentAccess = false;
+plugin.options.grantPublicViewAccess = false;
+plugin.options.grantPublicEditAccess = false;
 /**
  * A string with account email addresses that should be granted edit access to all processed
  * files. Separated by commas. (Not yet used.)
@@ -124,6 +127,12 @@ function fileAccessClassFolders() {
 plugin.fileGrant = function(row) {
   var file = SA.fetch.file(row, 'sourceFileUrl');
   var googleId = SA.fetch.cell(row, SA.plugins.basics.options.googleIdColumn).getValue();
+  if (this.options.grantPublicViewAccess) {
+    file.setSharing(DriveApp.Access.ANYONE, DriveApp.Permission.VIEW);;
+  }
+  if (this.options.grantPublicEditAccess) {
+    file.setSharing(DriveApp.Access.ANYONE, DriveApp.Permission.EDIT);;
+  }
   if (this.options.grantViewAccess) {
     file.addViewer(googleId);
   }
@@ -137,6 +146,12 @@ plugin.fileGrant = function(row) {
 plugin.folderGrant = function(row) {
   var folder = SA.fetch.folder(row, 'sourceFolderUrl');
   var googleId = SA.fetch.cell(row, SA.plugins.basics.options.googleIdColumn).getValue();
+  if (this.options.grantPublicViewAccess) {
+    folder.setSharing(DriveApp.Access.ANYONE, DriveApp.Permission.VIEW);;
+  }
+  if (this.options.grantPublicEditAccess) {
+    folder.setSharing(DriveApp.Access.ANYONE, DriveApp.Permission.EDIT);;
+  }
   if (this.options.grantViewAccess) {
     folder.addViewer(googleId);
   }
@@ -146,6 +161,7 @@ plugin.folderGrant = function(row) {
 }
 plugin.fileReset = function(row) {
   var file = SA.fetch.file(row, 'sourceFileId');
+  file.setSharing(DriveApp.Access.ANYONE, DriveApp.Permission.NONE);;
   var users = file.getViewers();
   for (var i in users) {
     file.revokePermissions(users[i]);
@@ -157,6 +173,7 @@ plugin.fileReset = function(row) {
 }
 plugin.folderReset = function(row) {
   var folder = SA.fetch.folder(row, 'sourceFolderUrl');
+  folder.setSharing(DriveApp.Access.ANYONE, DriveApp.Permission.NONE);;
   var users = folder.getViewers();
   for (var i in users) {
     folder.revokePermissions(users[i]);
