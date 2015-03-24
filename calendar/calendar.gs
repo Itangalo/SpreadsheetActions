@@ -134,11 +134,12 @@ plugin.fetchers.calendar = function(name, readOnly) {
     var c = CalendarApp.getOwnedCalendarsByName(name);
   }
 
-  if (c.length == 0) {
-    if (SA.plugins.calendar.options.createIfNeeded && readOnly) {
+      if (SA.plugins.calendar.options.createIfNeeded && !readOnly) {
       c = CalendarApp.createCalendar(name).setTimeZone(Session.getScriptTimeZone());
     }
-    throw('Calendar ' + name + ' does not exist.');
+    else {
+      throw('Calendar ' + name + ' does not exist.');
+    }
   }
   else {
     c = c[0];
