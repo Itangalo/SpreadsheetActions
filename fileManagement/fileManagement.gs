@@ -97,10 +97,10 @@ plugin.moveFile = function(row) {
   var file = SA.fetch.file(row, 'sourceFileUrl');
   var folder = SA.fetch.folder(row, 'targetFolderUrl');
 
-  if (this.options.removeFileFromRoot) {
+  if (this.options.removeFromRoot) {
     DriveApp.getRootFolder().removeFile(file);
   }
-  if (this.options.removeFileFromOldFolders) {
+  if (this.options.removeFromOldFolders) {
     var folders = file.getParents();
     while (folders.hasNext()) {
       folders.next().removeFile(file);
@@ -115,10 +115,10 @@ plugin.moveFolder = function(row) {
   var sourceFolder = SA.fetch.folder(row, 'sourceFolderUrl');
   var targetFolder = SA.fetch.folder(row, 'targetFolderUrl');
 
-  if (this.options.removeFileFromRoot) {
+  if (this.options.removeFromRoot) {
     DriveApp.getRootFolder().removeFolder(sourceFolder);
   }
-  if (this.options.removeFileFromOldFolders) {
+  if (this.options.removeFromOldFolders) {
     var folders = sourceFolder.getParents();
     while (folders.hasNext()) {
       folders.next().removeFolder(sourceFolder);
