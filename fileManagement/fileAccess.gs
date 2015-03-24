@@ -160,7 +160,7 @@ plugin.folderGrant = function(row) {
   }
 }
 plugin.fileReset = function(row) {
-  var file = SA.fetch.file(row, 'sourceFileId');
+  var file = SA.fetch.file(row, 'sourceFileUrl');
   file.setSharing(DriveApp.Access.ANYONE, DriveApp.Permission.NONE);;
   var users = file.getViewers();
   for (var i in users) {
