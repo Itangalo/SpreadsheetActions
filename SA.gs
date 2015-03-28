@@ -34,7 +34,7 @@ function onOpen() {
 var SA = {
   // Version declarations.
   version : 1,
-  subVersion : 2,
+  subVersion : 3,
 
   // Method for executing bulk actions on selected rows.
   executeBulkAction : function(plugin, callback, mode) {
@@ -100,7 +100,7 @@ var SA = {
     .addSubMenu(bulkActions)
     .addSubMenu(globalActions)
     .addSeparator()
-    .addItem('Setup', 'SAsetup')
+    .addItem('Menu setup', 'SAsetup')
     .addItem('Rescan menu items', 'onOpen')
     .addItem('Help', 'SAhelp')
     .addToUi();
@@ -160,7 +160,7 @@ function SAsetup() {
   var htmlOutput = HtmlService
      .createHtmlOutput(output)
      .setSandboxMode(HtmlService.SandboxMode.NATIVE)
-     .setTitle('Spreadsheet Actions setup');
+     .setTitle('Spreadsheet Actions menu setup');
   SpreadsheetApp.getUi().showSidebar(htmlOutput);
 
   globalOptions.sheet = globalOptions.workbook.getSheetByName(globalOptions.mainSheetName);
@@ -207,8 +207,8 @@ function SAhelp() {
   htmlOutput.append('<p>You can download and install new Student Actions plugins, to allow more actions. Here are some useful links.</p>');
   htmlOutput.append('<ul><li><a href="https://github.com/Itangalo/SpreadsheetActions">Plugins and source code on GitHub</a></li>');
   htmlOutput.append('<li><a href="http://tinyurl.com/SpreadsheetActionsVideos">Videos demonstrating Spreadsheet Actions alpha-1</a></li>');
-  htmlOutput.append('<li><a href="http://tinyurl.com/SpreadsheetActions">tinyurl.com/SpreadsheetActions</a> gives you a copy of the latest stable version</li></ul>');
-
+  htmlOutput.append('<li><a href="http://tinyurl.com/SpreadsheetActions">tinyurl.com/SpreadsheetActions</a> gives you a copy of the latest stable version</li>');
+  htmlOutput.append('<li><a href="https://magisterfalk.wordpress.com/2015/03/05/introducing-spreadsheet-actions/">Blog post explaining the ideas behind spreadsheet actions</a></li></ul>');
   SpreadsheetApp.getUi().showSidebar(htmlOutput);
 }
 
