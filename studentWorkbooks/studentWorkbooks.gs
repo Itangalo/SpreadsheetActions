@@ -3,11 +3,7 @@
  */
 
 var plugin = new SAplugin('studentWorkbooks');
-
-/**
- * This plugin uses options from other plugins:
- *   basics: Name, Google ID
- */
+plugin.subVersion = 2;
 
 // ID for the workbook used as template for each student.
 plugin.options.templateWorkbookId = '1QtUr7wYfh91d8M1qqYKv6I3C4YiJsVtUikwgiaNW5OQ';
@@ -27,10 +23,10 @@ plugin.dependencies = {
     version : 1
   },
   fileManagement : {
-    version : 1
+    version : 2
   },
   fileAccess : {
-    version : 1
+    version : 2
   }
 };
 
@@ -69,8 +65,16 @@ plugin.insertSheetCopy = function() {
 }
 
 SA.fetch.studentWorkbook = function(row) {
-  var id = SA.fetch.cell(row, SA.plugins.studentWorkbooks.options.studentWorkbookIdColumn).getValue();
-  return SpreadsheetApp.openById(id);
+  try {
+    return SpreadsheetApp.openByUrl(
+      SA.fetch.cell(row, SA.plugins.studentWorkbooks.options.studentWorkbookUrlColumn).getValue()
+    );
+  }
+  catch(e) {
+    return SpreadsheetApp.openById(
+      SA.fetch.cell(row, SA.plugins.studentWorkbooks.options.studentWorkbookIdColumn).getValue()
+    );
+  }
 }
 
 SA.fetch.studentSheet = function(row, sheetName) {
