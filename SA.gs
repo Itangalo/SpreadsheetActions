@@ -34,7 +34,7 @@ function onOpen() {
 var SA = {
   // Version declarations.
   version : 1,
-  subVersion : 3,
+  subVersion : 4,
 
   // Method for executing bulk actions on selected rows.
   executeBulkAction : function(plugin, callback, mode) {
