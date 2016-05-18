@@ -65,7 +65,7 @@ function pluginExampleExecute2() {
   SA.executeBulkAction('pluginExample', 'execute');
 }
 
-// The function actually writing cellt content.
+// The function actually writing cell content.
 plugin.execute = function(row, column, text) {
   if (this.options.allowOverwrite) {
     SA.fetch.cell(row, column || this.options.column).setValue(text || this.options.text);
