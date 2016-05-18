@@ -44,7 +44,7 @@ plugin.bulkActions = {
     description : 'Here is some description...'
   },
   pluginExampleExecute2 : {
-    title : 'Write to column 7'
+    title : 'Write to column 7 and 8'
   }
 }
 
