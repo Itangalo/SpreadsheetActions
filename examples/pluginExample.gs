@@ -10,6 +10,7 @@ var plugin = new SAplugin('pluginExample');
 /**
  * The options should go right after the plugin creation, making it easier for
  * users to find and modify them. Each option should be explained in a comment.
+ * (The options below are just examples. Use whatever your plugin needs.)
  */
 
 // The number of the column to write to.
