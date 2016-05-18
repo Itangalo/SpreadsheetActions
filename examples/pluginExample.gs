@@ -1,8 +1,8 @@
 /**
  * @file: Start each plugin with a comment block, explaining briefly what this
  * plugin does.
- * This plugin serves as a code example example. It allows writing content to
- * specified columns in the main sheet.
+ * This plugin serves as a code example. It allows writing content to specified
+ * columns in the main sheet.
  */
 
 var plugin = new SAplugin('pluginExample');
